@@ -23,6 +23,7 @@ window.addEventListener("keydown", function (event) {
 
   switch (event.key) {
     case "w":
+    case " ":
       forward = true;
       break;
     case "a":
@@ -40,6 +41,7 @@ window.addEventListener("keyup", function (event) {
   if (event.defaultPrevented) return;
 
   switch (event.key) {
+    case " ":
     case "w":
       forward = false;
       break;
@@ -54,9 +56,7 @@ window.addEventListener("keyup", function (event) {
   event.preventDefault;
 });
 
-const render = () => {
-  requestAnimationFrame(render);
-
+const reDraw = () => {
   // Clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -85,6 +85,10 @@ const render = () => {
 
   // Undo rotation
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+};
+
+const render = () => {
+  requestAnimationFrame(render);
 
   // Update rocket movement
   if (forward) {
@@ -96,9 +100,23 @@ const render = () => {
   } else if (right && !left) {
     rocketAngle = rocketAngle - Math.PI / 50 + 2 * Math.PI;
   }
+
+  // Gravity
+  rocketVY += 0.07;
+
   rocketX += rocketVX;
   rocketY += rocketVY;
+
+  // Draw state
+  reDraw();
 };
 
-// Start render loop
-requestAnimationFrame(render);
+// Draw initial state
+reDraw();
+
+// Wait for user to start the rocket before starting physics loop
+const handleStart = () => {
+  requestAnimationFrame(render);
+  window.removeEventListener("keydown", handleStart);
+};
+window.addEventListener("keydown", handleStart);
